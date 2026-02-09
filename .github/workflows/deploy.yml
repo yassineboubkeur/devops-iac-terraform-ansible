@@ -54,8 +54,9 @@ jobs:
 
     - name: Setup SSH key
       run: |
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/devops-key.pem
-        chmod 400 ~/.ssh/devops-key.pem
+        mkdir -p ~/.ssh
+        printf "%s\n" "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/devops-key.pem
+        chmod 600 ~/.ssh/devops-key.pem
 
 
     - name: Install Ansible
