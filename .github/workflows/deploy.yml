@@ -37,22 +37,25 @@ jobs:
 
 
     - name: Get EC2 IP
-      id: terraform_output
       run: |
         echo "EC2_IP=$(terraform output -raw ec2_public_ip)" >> $GITHUB_ENV
       working-directory: terraform
 
 
-    - name: Setup SSH key
+    - name: Wait for SSH
+      run: sleep 60
+
+
+    - name: Add EC2 to known_hosts
       run: |
         mkdir -p ~/.ssh
+        ssh-keyscan -H $EC2_IP >> ~/.ssh/known_hosts
+
+
+    - name: Setup SSH key
+      run: |
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/devops-key.pem
         chmod 400 ~/.ssh/devops-key.pem
-
-
-    - name: Disable host key checking
-      run: |
-        echo -e "[defaults]\nhost_key_checking = False" > ~/.ansible.cfg
 
 
     - name: Install Ansible
@@ -64,7 +67,7 @@ jobs:
     - name: Create inventory
       run: |
         echo "[web]" > ansible/inventory
-        echo "$EC2_IP ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/devops-key.pem ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> ansible/inventory
+        echo "$EC2_IP ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/devops-key.pem" >> ansible/inventory
 
 
     - name: Run Ansible playbook
