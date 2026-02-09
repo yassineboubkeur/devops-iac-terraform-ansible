@@ -42,8 +42,8 @@ jobs:
       working-directory: terraform
 
 
-    # - name: Wait for SSH
-    #   run: sleep 60
+    - name: Wait for SSH
+      run: sleep 60
 
 
     - name: Add EC2 to known_hosts
