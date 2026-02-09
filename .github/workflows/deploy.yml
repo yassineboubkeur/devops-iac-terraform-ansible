@@ -42,8 +42,8 @@ jobs:
       working-directory: terraform
 
 
-    - name: Wait for SSH
-      run: sleep 60
+    # - name: Wait for SSH
+    #   run: sleep 60
 
 
     - name: Add EC2 to known_hosts
@@ -64,16 +64,20 @@ jobs:
         sudo apt update
         sudo apt install -y ansible
 
-        
+
     - name: Install Python 3.11 on EC2
       run: |
        ssh -i ~/.ssh/devops-key.pem ubuntu@$EC2_IP -o StrictHostKeyChecking=no << 'EOF'
         sudo apt update
+        sudo apt install -y software-properties-common
+        sudo add-apt-repository ppa:deadsnakes/ppa -y
+        sudo apt update
         sudo apt install -y python3.11 python3.11-venv python3.11-distutils
         sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
+        python3 --version
        EOF
 
-
+       
     - name: Create inventory
       run: |
         echo "[web]" > ansible/inventory
