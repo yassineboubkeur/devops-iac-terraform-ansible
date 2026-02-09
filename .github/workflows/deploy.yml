@@ -50,10 +50,10 @@ jobs:
         chmod 400 ~/.ssh/devops-key.pem
 
 
-    - name: Add EC2 to known_hosts
+    - name: Disable host key checking
       run: |
-        ssh-keyscan -H $EC2_IP >> ~/.ssh/known_hosts
-        
+        echo -e "[defaults]\nhost_key_checking = False" > ~/.ansible.cfg
+
 
     - name: Install Ansible
       run: |
@@ -64,7 +64,7 @@ jobs:
     - name: Create inventory
       run: |
         echo "[web]" > ansible/inventory
-        echo "$EC2_IP ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/devops-key.pem" >> ansible/inventory
+        echo "$EC2_IP ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/devops-key.pem ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> ansible/inventory
 
 
     - name: Run Ansible playbook
