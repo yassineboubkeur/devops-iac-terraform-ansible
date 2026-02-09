@@ -1,0 +1,60 @@
+name: Terraform and Ansible Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
+
+    - name: Terraform Init
+      run: terraform init
+      working-directory: terraform
+
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve
+      working-directory: terraform
+
+
+    - name: Get EC2 IP
+      id: terraform_output
+      run: |
+        echo "EC2_IP=$(terraform output -raw ec2_public_ip)" >> $GITHUB_ENV
+      working-directory: terraform
+
+
+    - name: Setup SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/devops-key.pem
+        chmod 400 ~/.ssh/devops-key.pem
+
+
+    - name: Install Ansible
+      run: |
+        sudo apt update
+        sudo apt install -y ansible
+
+
+    - name: Create inventory
+      run: |
+        echo "[web]" > ansible/inventory
+        echo "$EC2_IP ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/devops-key.pem" >> ansible/inventory
+
+
+    - name: Run Ansible playbook
+      run: ansible-playbook -i inventory install_docker.yml
+      working-directory: ansible
