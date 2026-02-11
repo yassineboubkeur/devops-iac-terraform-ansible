@@ -61,7 +61,7 @@ jobs:
 
     - name: Install Python 3.11 on EC2
       run: |
-       ssh -i ~/.ssh/devops-key.pem ubuntu@$EC2_IP -o StrictHostKeyChecking=no << 'EOF'
+       ssh -i ~/.ssh/devops-key.pem ubuntu@$EC2_IP -o StrictHostKeyChecking=no << EOF
         sudo apt update
         sudo apt install -y software-properties-common
         sudo add-apt-repository ppa:deadsnakes/ppa -y
@@ -71,7 +71,7 @@ jobs:
         python3 --version
        EOF
 
-       
+
     - name: Install Ansible
       run: |
         sudo apt update
