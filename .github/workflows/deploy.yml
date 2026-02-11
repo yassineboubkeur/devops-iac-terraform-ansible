@@ -76,3 +76,9 @@ jobs:
     - name: Run Ansible playbook
       run: ansible-playbook -i inventory install_docker.yml
       working-directory: ansible
+
+      
+    - name: Validate Application
+      run: |
+       sleep 20
+       curl -I http://$EC2_IP
