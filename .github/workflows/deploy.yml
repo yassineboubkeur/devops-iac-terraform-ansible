@@ -59,12 +59,6 @@ jobs:
         chmod 600 ~/.ssh/devops-key.pem
 
 
-    - name: Install Ansible
-      run: |
-        sudo apt update
-        sudo apt install -y ansible
-
-
     - name: Install Python 3.11 on EC2
       run: |
        ssh -i ~/.ssh/devops-key.pem ubuntu@$EC2_IP -o StrictHostKeyChecking=no << 'EOF'
@@ -78,11 +72,16 @@ jobs:
        EOF
 
        
+    - name: Install Ansible
+      run: |
+        sudo apt update
+        sudo apt install -y ansible
+
+       
     - name: Create inventory
       run: |
         echo "[web]" > ansible/inventory
-        echo "$EC2_IP ansible_user=ubuntu ansible_python_interpreter=/usr/bin/python3 ansible_ssh_private_key_file=~/.ssh/devops-key.pem ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> ansible/inventory
-
+        echo "$EC2_IP ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/devops-key.pem ansible_python_interpreter=/usr/bin/python3.11 ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> ansible/inventory
     
     - name: Run Ansible playbook
       run: ansible-playbook -i inventory install_docker.yml
